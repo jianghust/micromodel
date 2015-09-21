@@ -39,6 +39,9 @@ class Shape():
                 for i in xrange(self.domainX):
                     self.data[k, j, i] += random.randint(-1 * noiseLevel, noiseLevel)
 
+    def getData(self):
+        return self.data
+
     def smooth(self):
         source = self.setDataLimit(self.domainX, self.domainY, self.domainZ);
 
@@ -250,24 +253,24 @@ class Domain:
             self.shapes[0].addNoise(noiseLevel)
 
     # calculate the porosity of designed geometry
-    def calcPhi(self, domainX, domainY, domainZ, threshold_color):
+    def calcPhi(self, threshold_color):
         sum_white = 0
         sum_black = 0
-        for k in xrange(domainZ):
-            for j in xrange(domainY):
-                for i in xrange(domainX):
-                    if self.data[k, j, i] >= threshold_color:
-                        sum_white += 1
-                    else:
-                        sum_black += 1
-        if sum_white + sum_black != domainZ * domainY * domainZ:
-            print '>>>>>  something is wrong.'
+
+        for index in xrange(len(self.shapes)):
+            data = self.shapes[index].getData()
+            for k in xrange(self.domainZ):
+                for j in xrange(self.domainY):
+                    for i in xrange(self.domainX):
+                        if data[k, j, i] >= threshold_color:
+                            sum_white += 1
+                        else:
+                            sum_black += 1
         return float(sum_black) / float(sum_white + sum_black)
 
 
+# save images
 
-        # save images
-
-    def saveImages(self, path, name=''):
-        print self.shapes
-        for index in range(len(self.shapes)):
+def saveImages(self, path, name=''):
+    for index in range(len(self.shapes)):
+        self.shapes[index].saveImages(path, name + '_' + self.shapes[index].__class__.__name__.lower() + '_')

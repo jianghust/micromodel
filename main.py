@@ -14,6 +14,5 @@ sphere3 = micromodel.Sphere(1,30,10,20,0)
 
 domain = micromodel.Domain(256,256,256);
 domain.addShape(sphere2,sphere3)
-#domain.addShape(sphere3)
 domain.saveImages('./image/','img')
 
