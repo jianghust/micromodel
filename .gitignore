@@ -1,9 +1,4 @@
-node_modules
-diff.list.tmp
-islive
-xsslog.txt
-jslog.txt
-codecheck/gbk2utf8/markFile.txt
-output
-_build
+imgtemp
 .idea
+microModel_25*
+*.pyc

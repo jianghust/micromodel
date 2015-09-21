@@ -256,3 +256,7 @@ class Domain:
         for k in range(0, domainZ):
             img = Image.fromarray(getdomain[2].astype(np.uint8))
             img.save('./microModel_256/sphere_' + str(k).zfill(4) + '.bmp')
+
+class Test:
+	def getName(self):
+		print 'myname'

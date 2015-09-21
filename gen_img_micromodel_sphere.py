@@ -158,6 +158,7 @@ print 'wowo2'
 
 ## save images in the folder as bmp
 
-for k in range(0, size_z):
-    img = Image.fromarray(data[k].astype(np.uint8))
-    img.save('./microModel_256_spheres/sphere_' + str(k).zfill(4) + '.bmp')
+print data[0].astype(np.uint8)
+exit()
+img = Image.fromarray(data[0].astype(np.uint8))
+img.save('./microModel_256_spheres/sphere_' + str(1).zfill(4) + '.bmp')
