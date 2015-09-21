@@ -273,7 +273,6 @@ class Domain:
 
     def saveImages(self, path, name=''):
         if not os.path.exists(path):
-            # 创建目录
             os.makedirs(path)
         for index in range(len(self.shapes)):
             self.shapes[index].saveImages(path, name + '_' + str(index) + '_' + self.shapes[
