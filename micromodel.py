@@ -33,6 +33,33 @@ class Shape():
     def setPixels(self, sizeX, sizeY, sizeZ):
         pass
 
+    def addNoise(self, noiseLevel):
+        for k in xrange(self.domainZ):
+            for j in xrange(self.domainY):
+                for i in xrange(self.domainX):
+                    self.data[k, j, i] += random.randint(-1 * noiseLevel, noiseLevel)
+
+    def smooth(self):
+        source = self.setDataLimit(self.domainX, self.domainY, self.domainZ);
+
+        for k in xrange(self.domainZ):
+            for j in xrange(self.domainY):
+                for i in xrange(self.domainX):
+                    source[k, j, i] = self.data[k, j, i]
+
+        for k in xrange(self.domainZ):
+            for j in xrange(self.domainY):
+                for i in xrange(self.domainX):
+                    n = 0
+                    sum_ = 0
+                    for kk in range(max(0, k - 1), min(self.domainZ, k + 2)):
+                        for jj in range(max(0, j - 1), min(self.domainY, j + 2)):
+                            for ii in range(max(0, i - 1), min(self.domainX, i + 2)):
+                                n += 1;
+                                sum_ += source[kk, jj, ii]
+                    self.data[k, j, i] = max(0, min(255, round(sum_ / n)))
+        del source
+
     def saveImages(self, path, name):
         #        for k in range(0, domainZ):
         #		print self.data
@@ -214,33 +241,13 @@ class Domain:
 
     # smooth the shape edges in the domain
     def smooth(self, domainX, domainY, domainZ):
-        source = self.setDataLimit(domainX, domainY, domainZ);
-
-        for k in xrange(domainZ):
-            for j in xrange(domainY):
-                for i in xrange(domainX):
-                    source[k, j, i] = self.data[k, j, i]
-
-        for k in xrange(domainZ):
-            for j in xrange(domainY):
-                for i in xrange(domainX):
-                    n = 0
-                    sum_ = 0
-                    for kk in range(max(0, k - 1), min(domainZ, k + 2)):
-                        for jj in range(max(0, j - 1), min(domainY, j + 2)):
-                            for ii in range(max(0, i - 1), min(domainX, i + 2)):
-                                n += 1;
-                                sum_ += source[kk, jj, ii]
-                    self.data[k, j, i] = max(0, min(255, round(sum_ / n)))
-
-        del source
+        for k in range(len(self.shapes)):
+            self.shapes[0].smooth()
 
     # addNoise to the shapes in the domain
-    def addNoise(self, domainX, domainY, domainZ, noiseLevel):
-        for k in xrange(domainZ):
-            for j in xrange(domainY):
-                for i in xrange(domainX):
-                    self.data[k, j, i] += random.randint(-1 * noiseLevel, noiseLevel)
+    def addNoise(self, noiseLevel):
+        for k in range(len(self.shapes)):
+            self.shapes[0].addNoise(noiseLevel)
 
     # calculate the porosity of designed geometry
     def calcPhi(self, domainX, domainY, domainZ, threshold_color):
