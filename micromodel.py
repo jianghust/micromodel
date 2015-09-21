@@ -2,6 +2,7 @@ import random
 import sys
 import Image
 import numpy as np
+import os
 
 """A Micromodel library, including the following class
 
@@ -26,46 +27,47 @@ import numpy as np
 # class Shape,all shapre class parent
 
 class Shape():
-    def setDataLimit(self, domainX, domainY, domainZ):
-        self.data = np.zeros(domainX * domainY * domainZ).reshape(domainX, domainY, domainZ)
+    def setDataLimit(self, sizeX, sizeY, sizeZ):
+        self.data = np.zeros(sizeX * sizeY * sizeZ).reshape(sizeX, sizeY, sizeZ)
         self.data[:] = np.uint8(255)
+        self.sizeX = sizeX
+        self.sizeY = sizeY
+        self.sizeZ = sizeZ
 
     def setPixels(self, sizeX, sizeY, sizeZ):
         pass
 
     def addNoise(self, noiseLevel):
-        for k in xrange(self.domainZ):
-            for j in xrange(self.domainY):
-                for i in xrange(self.domainX):
+        for k in xrange(self.sizeZ):
+            for j in xrange(self.sizeY):
+                for i in xrange(self.sizeX):
                     self.data[k, j, i] += random.randint(-1 * noiseLevel, noiseLevel)
 
     def getData(self):
         return self.data
 
     def smooth(self):
-        source = self.setDataLimit(self.domainX, self.domainY, self.domainZ);
+        source = self.setDataLimit(self.sizeX, self.sizeY, self.sizeZ);
 
-        for k in xrange(self.domainZ):
-            for j in xrange(self.domainY):
-                for i in xrange(self.domainX):
+        for k in xrange(self.sizeZ):
+            for j in xrange(self.sizeY):
+                for i in xrange(self.sizeX):
                     source[k, j, i] = self.data[k, j, i]
 
-        for k in xrange(self.domainZ):
-            for j in xrange(self.domainY):
-                for i in xrange(self.domainX):
+        for k in xrange(self.sizeZ):
+            for j in xrange(self.sizeY):
+                for i in xrange(self.sizeX):
                     n = 0
                     sum_ = 0
-                    for kk in range(max(0, k - 1), min(self.domainZ, k + 2)):
-                        for jj in range(max(0, j - 1), min(self.domainY, j + 2)):
-                            for ii in range(max(0, i - 1), min(self.domainX, i + 2)):
+                    for kk in range(max(0, k - 1), min(self.sizeZ, k + 2)):
+                        for jj in range(max(0, j - 1), min(self.sizeY, j + 2)):
+                            for ii in range(max(0, i - 1), min(self.sizeX, i + 2)):
                                 n += 1;
                                 sum_ += source[kk, jj, ii]
                     self.data[k, j, i] = max(0, min(255, round(sum_ / n)))
         del source
 
     def saveImages(self, path, name):
-        #        for k in range(0, domainZ):
-        #		print self.data
         self.data = np.uint8(self.data)
         for index in range(len(self.data)):
             img = Image.fromarray(self.data[index])
@@ -187,19 +189,19 @@ class CylinderH(Shape):
 
 
 class Domain:
-    def __init__(self, domainX, domainY, domainZ):
+    def __init__(self, sizeX, sizeY, sizeZ):
         self.shapes = list()
         #        self.domain = domain
-        self.domainX = domainX
-        self.domainY = domainY
-        self.domainZ = domainZ
-        # domain = np.array([domainX,domainY,domainZ])
+        self.sizeX = sizeX
+        self.sizeY = sizeY
+        self.sizeZ = sizeZ
+        # domain = np.array([sizeX,sizeY,sizeZ])
 
         # domain[] is a list with domain[0] = axis X, domain[1] = axis Y and domain[2] = axis Z
         # initialize a 3D data array to store pixels
 
     #    def getdomain(self):
-    #        data = np.zeros(self.domainX * self.domainY * self.domainZ).reshape(self.domainX, self.domainY, self.domainZ)
+    #        data = np.zeros(self.sizeX * self.sizeY * self.sizeZ).reshape(self.sizeX, self.sizeY, self.sizeZ)
     #        data[:] = 255
     #        return data
 
@@ -212,22 +214,21 @@ class Domain:
             if isinstance(value, Shape) == False:
                 print 'No such shape!'
             else:
-                print 'sharp'
-                value.setPixels(self.domainX, self.domainY, self.domainZ)
+                value.setPixels(self.sizeX, self.sizeY, self.sizeZ)
                 self.shapes.append(value)
 
     # if user simplied want to create spheres in the domain with range of radius and random position, can call this function directly
     def fillWithRandomSpheres(self, minRadius, maxRadius, numbers):
         for iSphere in xrange(numbers):
             sphere_radius = random.randint(minRadius, maxRadius)
-            location_x = random.randint(-sphere_radius, self.domainX + sphere_radius)
-            location_y = random.randint(-sphere_radius, self.domainY + sphere_radius)
-            location_z = random.randint(-sphere_radius, self.domainZ + sphere_radius)
+            location_x = random.randint(-sphere_radius, self.sizeX + sphere_radius)
+            location_y = random.randint(-sphere_radius, self.sizeY + sphere_radius)
+            location_z = random.randint(-sphere_radius, self.sizeZ + sphere_radius)
             self.shapes.append(
                 Sphere(location_x - sphere_radius, location_y - sphere_radius, location_z - sphere_radius,
                        sphere_radius, 0))
         for sphere in self.shapes:
-            sphere.setPixels(self.domainX, self.domainY, self.domainZ)
+            sphere.setPixels(self.sizeX, self.sizeY, self.sizeZ)
 
             # user can build different small domains and fuse them into an bigger domain, but limited to grow in x, y, z directly right now.
 
@@ -243,7 +244,7 @@ class Domain:
         return newDomain
 
     # smooth the shape edges in the domain
-    def smooth(self, domainX, domainY, domainZ):
+    def smooth(self, sizeX, sizeY, sizeZ):
         for k in range(len(self.shapes)):
             self.shapes[0].smooth()
 
@@ -259,18 +260,21 @@ class Domain:
 
         for index in xrange(len(self.shapes)):
             data = self.shapes[index].getData()
-            for k in xrange(self.domainZ):
-                for j in xrange(self.domainY):
-                    for i in xrange(self.domainX):
+            for k in xrange(self.sizeZ):
+                for j in xrange(self.sizeY):
+                    for i in xrange(self.sizeX):
                         if data[k, j, i] >= threshold_color:
                             sum_white += 1
                         else:
                             sum_black += 1
         return float(sum_black) / float(sum_white + sum_black)
 
+    # save images
 
-# save images
-
-def saveImages(self, path, name=''):
-    for index in range(len(self.shapes)):
-        self.shapes[index].saveImages(path, name + '_' + self.shapes[index].__class__.__name__.lower() + '_')
+    def saveImages(self, path, name=''):
+        if not os.path.exists(path):
+            # 创建目录
+            os.makedirs(path)
+        for index in range(len(self.shapes)):
+            self.shapes[index].saveImages(path, name + '_' + str(index) + '_' + self.shapes[
+                index].__class__.__name__.lower() + '_')
