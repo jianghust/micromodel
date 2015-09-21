@@ -157,8 +157,8 @@ class CylinderH(Shape):
 
 
 class Domain:
-    def __int__(self, domainX, domainY, domainZ):
-        self.shapes = []
+    def __init__(self, domainX, domainY, domainZ):
+        self.shapes = list()
         #        self.domain = domain
         self.domainX = domainX
         self.domainY = domainY
@@ -177,11 +177,12 @@ class Domain:
     # if does, append the shape to current domain list and construct it
     # iterate the list, add all the shapes to the specified domain
 
-    def addShape(self, **kwargs):
-        for key, value in kwargs.iteritems():
+    def addShape(self, *args):
+        for value in args:
             if isinstance(value, Shape) == False:
                 print 'No such shape!'
             else:
+                print 'sharp'
                 value.setPixels(self.domainX, self.domainY, self.domainZ)
                 self.shapes.append(value)
 
@@ -260,12 +261,6 @@ class Domain:
 
         # save images
 
-    def saveimages(self, domainZ):
-        for k in range(0, domainZ):
-            img = Image.fromarray(getdomain[2].astype(np.uint8))
-            img.save('./microModel_256/sphere_' + str(k).zfill(4) + '.bmp')
-
-
-class Test:
-    def getName(self):
-        print 'myname'
+    def saveImages(self, path, name=''):
+        print self.shapes
+        for index in range(len(self.shapes)):
