@@ -184,6 +184,9 @@ class Domain:
     def getShapes(self):
         return self.shapes
 
+    def getData(self):
+        return self.data
+
     # if user simplied want to create spheres in the domain with range of radius and random position, can call this function directly
     def fillWithRandomSpheres(self, minRadius, maxRadius, numbers):
         for iSphere in xrange(numbers):
