@@ -79,8 +79,6 @@ class Shape():
 
 # Box
 class Box(Shape):
-    data = []
-
     def __init__(self, x0, y0, z0, w, h, t, value):
         self.x0 = x0
         self.y0 = y0
@@ -90,7 +88,7 @@ class Box(Shape):
         self.z1 = self.z0 + t
         self.value = value
 
-    def setPixels(self, sizeX, sizeY, sizeZ):
+    def setPixels(self, data, sizeX, sizeY, sizeZ):
         self.setDataLimit(sizeX, sizeY, sizeZ)
         iMin = max(0, self.x0)
         iMax = min(sizeX, self.x1)
@@ -101,7 +99,7 @@ class Box(Shape):
         for i in range(iMin, iMax):
             for j in range(jMin, jMax):
                 for k in range(kMin, kMax):
-                    self.data[k, j, i] = self.value
+                    data[k, j, i] = self.value
 
 
 # Sphere
@@ -115,7 +113,7 @@ class Sphere(Shape):
         self.R2 = r ** 2
         self.value = value
 
-    def setPixels(self, sizeX, sizeY, sizeZ):
+    def setPixels(self, data, sizeX, sizeY, sizeZ):
         self.setDataLimit(sizeX, sizeY, sizeZ)
         iMin = max(0, self.centerX - self.R)
         iMax = min(sizeX, self.centerX + self.R + 1)
@@ -128,7 +126,7 @@ class Sphere(Shape):
                 for k in range(kMin, kMax):
                     d2 = (i - self.centerX) ** 2 + (j - self.centerY) ** 2 + (k - self.centerZ) ** 2
                     if d2 <= self.R2:
-                        self.data[k, j, i] = self.value
+                        data[k, j, i] = self.value
 
 
 # Vertical oriented cylinder
@@ -143,7 +141,7 @@ class CylinderV(Shape):
         self.R2 = r ** 2
         self.value = val
 
-    def setPixels(self, sizeX, sizeY, sizeZ):
+    def setPixels(self, data, sizeX, sizeY, sizeZ):
         self.setDataLimit(sizeX, sizeY, sizeZ)
         iMin = max(0, self.centerX - self.R)
         iMax = min(sizeX, self.centerX + self.R + 1)
@@ -156,7 +154,7 @@ class CylinderV(Shape):
                 for k in range(kMin, kMax):
                     d2 = (i - self.centerX) ** 2 + (j - self.centerY) ** 2
                     if d2 <= self.R2:
-                        self.data[k, j, i] = self.value
+                        data[k, j, i] = self.value
 
 
 # Horizontally oriented cylinder
@@ -171,7 +169,7 @@ class CylinderH(Shape):
         self.R2 = r ** 2
         self.value = val
 
-    def setPixels(self, sizeX, sizeY, sizeZ):
+    def setPixels(self, data, sizeX, sizeY, sizeZ):
         self.setDataLimit(sizeX, sizeY, sizeZ)
         iMin = max(0, self.X0)
         iMax = min(sizeX, self.X1 + 1)
@@ -184,14 +182,15 @@ class CylinderH(Shape):
                 for k in range(kMin, kMax):
                     d2 = (j - self.centerY) ** 2 + (k - self.centerZ) ** 2
                     if d2 <= self.R2:
-                        self.data[k, j, i] = self.value
+                        data[k, j, i] = self.value
                         # Class Domain
 
 
 class Domain:
     def __init__(self, sizeX, sizeY, sizeZ):
         self.shapes = list()
-        #        self.domain = domain
+        self.data = np.zeros(sizeX * sizeY * sizeZ).reshape(sizeX, sizeY, sizeZ)
+        self.data[:] = np.uint8(255)
         self.sizeX = sizeX
         self.sizeY = sizeY
         self.sizeZ = sizeZ
@@ -214,7 +213,7 @@ class Domain:
             if isinstance(value, Shape) == False:
                 print 'No such shape!'
             else:
-                value.setPixels(self.sizeX, self.sizeY, self.sizeZ)
+                value.setPixels(self.data, self.sizeX, self.sizeY, self.sizeZ)
                 self.shapes.append(value)
 
     # if user simplied want to create spheres in the domain with range of radius and random position, can call this function directly
@@ -267,13 +266,17 @@ class Domain:
                             sum_white += 1
                         else:
                             sum_black += 1
-        return float(sum_black) / float(sum_white + sum_black)
+                print sum_black
+                #  return float(sum_black) / float(sum_white + sum_black)
 
     # save images
 
     def saveImages(self, path, name=''):
         if not os.path.exists(path):
             os.makedirs(path)
-        for index in range(len(self.shapes)):
-            self.shapes[index].saveImages(path, name + '_' + str(index) + '_' + self.shapes[
-                index].__class__.__name__.lower() + '_')
+        self.data = np.uint8(self.data)
+        if name == '':
+            name = 'shape'
+        for index in range(len(self.data)):
+            img = Image.fromarray(self.data[index])
+            img.save(path + name + '_' + str(index).zfill(4) + '.bmp')

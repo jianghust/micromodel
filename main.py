@@ -2,17 +2,21 @@ import sys
 import pprint
 import micromodel
 
-domain_size = [300, 300, 400]
+#domain_size = [300, 300, 400]
 # test = Test()
 # Sphere = micromodel.CylinderV(x0=100,y0=100,z0=100,x1=200,y1=200,z1=200,r=40)
-sphere = micromodel.Sphere(10, 100, 10, 20, 0)
+#sphere = micromodel.Sphere(10, 100, 10, 20, 0)
 # sphere.setPixels(256,256,256)
 # sphere.saveImages('./imgtemp/','wow')
 
-sphere2 = micromodel.Sphere(100, 50, 10, 20, 0)
-sphere3 = micromodel.Sphere(1, 30, 10, 20, 0)
+#sphere2 = micromodel.Sphere(100, 50, 10, 20, 0)
+#sphere3 = micromodel.Sphere(1, 30, 10, 20, 0)
 
+#box = micromodel.Box(200,0,0,100,100,100)
 domain = micromodel.Domain(256, 256, 256);
-domain.addShape(sphere2, sphere3)
+domain.addShape(micromodel.Sphere(100, 50, 10, 20, 0))
+domain.addShape(micromodel.Sphere(1, 30, 10, 20, 0))
+domain.addShape(micromodel.Box(200,0,0,100,100,100,10))
+
 domain.saveImages('./image/', 'img')
 #print "the Porosity = " + str(domain.calcPhi(127))
