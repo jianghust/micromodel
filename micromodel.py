@@ -28,13 +28,6 @@ import time
 # class Shape,all shapre class parent
 
 class Shape():
-    def setDataLimit(self, sizeX, sizeY, sizeZ):
-        self.data = np.zeros(sizeX * sizeY * sizeZ).reshape(sizeX, sizeY, sizeZ)
-        self.data[:] = np.uint8(255)
-        self.sizeX = sizeX
-        self.sizeY = sizeY
-        self.sizeZ = sizeZ
-
     def setPixels(self, data, sizeX, sizeY, sizeZ):
         pass
 
@@ -54,7 +47,6 @@ class Box(Shape):
         self.value = value
 
     def setPixels(self, data, sizeX, sizeY, sizeZ):
-        self.setDataLimit(sizeX, sizeY, sizeZ)
         iMin = max(0, self.x0)
         iMax = min(sizeX, self.x1)
         jMin = max(0, self.y0)
@@ -79,7 +71,6 @@ class Sphere(Shape):
         self.value = value
 
     def setPixels(self, data, sizeX, sizeY, sizeZ):
-        self.setDataLimit(sizeX, sizeY, sizeZ)
         iMin = max(0, self.centerX - self.R)
         iMax = min(sizeX, self.centerX + self.R + 1)
         jMin = max(0, self.centerY - self.R)
@@ -107,7 +98,6 @@ class CylinderV(Shape):
         self.value = val
 
     def setPixels(self, data, sizeX, sizeY, sizeZ):
-        self.setDataLimit(sizeX, sizeY, sizeZ)
         iMin = max(0, self.centerX - self.R)
         iMax = min(sizeX, self.centerX + self.R + 1)
         jMin = max(0, self.centerY - self.R)
@@ -135,7 +125,6 @@ class CylinderH(Shape):
         self.value = val
 
     def setPixels(self, data, sizeX, sizeY, sizeZ):
-        self.setDataLimit(sizeX, sizeY, sizeZ)
         iMin = max(0, self.X0)
         iMax = min(sizeX, self.X1 + 1)
         jMin = max(0, self.centerY - self.R)
@@ -204,11 +193,11 @@ class Domain:
 
     def fuseDomain(self, domainInstance, location):
         if location == "x":
-            self.data = np.hstack(self.data, domainInstance.getData())
+            self.data = np.hstack((self.data, domainInstance.getData()))
         elif location == "y":
-            self.data = np.vstack(self.data, domainInstance.getData())
+            self.data = np.vstack((self.data, domainInstance.getData()))
         elif location == "z":
-            self.data = np.dstack(self.data, domainInstance.getData())
+            self.data = np.dstack((self.data, domainInstance.getData()))
         else:
             print "Wrong location!"
 
