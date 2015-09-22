@@ -19,4 +19,4 @@ domain.addShape(micromodel.Sphere(1, 30, 10, 20, 0))
 domain.addShape(micromodel.Box(200,0,0,100,100,100,10))
 
 domain.saveImages('./image/', 'img')
-#print "the Porosity = " + str(domain.calcPhi(127))
+print "the Porosity = " + str(domain.calcPhi(127))

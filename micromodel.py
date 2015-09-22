@@ -3,6 +3,7 @@ import sys
 import Image
 import numpy as np
 import os
+import time
 
 """A Micromodel library, including the following class
 
@@ -240,16 +241,17 @@ class Domain:
     def calcPhi(self, threshold_color):
         sum_white = 0
         sum_black = 0
+        # now = time.time()
+        for k in xrange(self.sizeZ):
+            for j in xrange(self.sizeY):
+                for i in xrange(self.sizeX):
+                    if self.data[k, j, i] >= threshold_color:
+                        sum_white += 1
+                    else:
+                        sum_black += 1
 
-        for index in xrange(len(self.shapes)):
-            data = self.shapes[index].getData()
-            for k in xrange(self.sizeZ):
-                for j in xrange(self.sizeY):
-                    for i in xrange(self.sizeX):
-                        if data[k, j, i] >= threshold_color:
-                            sum_white += 1
-                        else:
-                            sum_black += 1
+        # end_time = time.time()
+        # print "the calc time is:" + str(end_time - now) + 's'
         return float(sum_black) / float(sum_white + sum_black)
 
     # save images
