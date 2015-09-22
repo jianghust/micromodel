@@ -34,47 +34,11 @@ class Shape():
         self.sizeY = sizeY
         self.sizeZ = sizeZ
 
-    def setPixels(self, sizeX, sizeY, sizeZ):
+    def setPixels(self, data, sizeX, sizeY, sizeZ):
         pass
 
-    def addNoise(self, noiseLevel):
-        for k in xrange(self.sizeZ):
-            for j in xrange(self.sizeY):
-                for i in xrange(self.sizeX):
-                    self.data[k, j, i] += random.randint(-1 * noiseLevel, noiseLevel)
-
-    def getData(self):
-        return self.data
-
-    def smooth(self):
-        source = self.setDataLimit(self.sizeX, self.sizeY, self.sizeZ);
-
-        for k in xrange(self.sizeZ):
-            for j in xrange(self.sizeY):
-                for i in xrange(self.sizeX):
-                    source[k, j, i] = self.data[k, j, i]
-
-        for k in xrange(self.sizeZ):
-            for j in xrange(self.sizeY):
-                for i in xrange(self.sizeX):
-                    n = 0
-                    sum_ = 0
-                    for kk in range(max(0, k - 1), min(self.sizeZ, k + 2)):
-                        for jj in range(max(0, j - 1), min(self.sizeY, j + 2)):
-                            for ii in range(max(0, i - 1), min(self.sizeX, i + 2)):
-                                n += 1;
-                                sum_ += source[kk, jj, ii]
-                    self.data[k, j, i] = max(0, min(255, round(sum_ / n)))
-        del source
-
-    def saveImages(self, path, name):
-        self.data = np.uint8(self.data)
-        for index in range(len(self.data)):
-            img = Image.fromarray(self.data[index])
-            img.save(path + name + str(index).zfill(4) + '.bmp')
-
-            # the size here is the size of shapes, it has nothing to do with the entire domain size
-            # value is the pixel value written in the image
+        # the size here is the size of shapes, it has nothing to do with the entire domain size
+        # value is the pixel value written in the image
 
 
 # Box
@@ -216,6 +180,9 @@ class Domain:
                 value.setPixels(self.data, self.sizeX, self.sizeY, self.sizeZ)
                 self.shapes.append(value)
 
+    def getShapes(self):
+        return self.shapes
+
     # if user simplied want to create spheres in the domain with range of radius and random position, can call this function directly
     def fillWithRandomSpheres(self, minRadius, maxRadius, numbers):
         for iSphere in xrange(numbers):
@@ -227,30 +194,47 @@ class Domain:
                 Sphere(location_x - sphere_radius, location_y - sphere_radius, location_z - sphere_radius,
                        sphere_radius, 0))
         for sphere in self.shapes:
-            sphere.setPixels(self.sizeX, self.sizeY, self.sizeZ)
+            sphere.setPixels(self.data, self.sizeX, self.sizeY, self.sizeZ)
 
             # user can build different small domains and fuse them into an bigger domain, but limited to grow in x, y, z directly right now.
 
-    def fuseDomain(self, other, location):
+    def fuseDomain(self, domainInstance, location):
         if location == "x":
-            newDomain = np.hstack(this.domain.getDomain(), other.domain.getDomain())
+            self.data = np.hstack(self.data, domainInstance.getData())
         elif location == "y":
-            newDomain = np.vstack(this.domain.getDomain(), other.domain.getDomain())
+            self.data = np.vstack(self.data, domainInstance.getData())
         elif location == "z":
-            newDomain = np.dstack(this.domain.getDomain(), other.domain.getDomain())
+            self.data = np.dstack(self.data, domainInstance.getData())
         else:
             print "Wrong location!"
-        return newDomain
+
+    def addNoise(self, noiseLevel):
+        for k in xrange(self.sizeZ):
+            for j in xrange(self.sizeY):
+                for i in xrange(self.sizeX):
+                    self.data[k, j, i] += random.randint(-1 * noiseLevel, noiseLevel)
 
     # smooth the shape edges in the domain
-    def smooth(self, sizeX, sizeY, sizeZ):
-        for k in range(len(self.shapes)):
-            self.shapes[0].smooth()
+    def smooth(self):
+        source = np.zeros(self.sizeX * self.sizeY * self.sizeZ).reshape(self.sizeX, self.sizeY, self.sizeZ)
+        source[:] = np.uint8(255)
+        for k in xrange(self.sizeZ):
+            for j in xrange(self.sizeY):
+                for i in xrange(self.sizeX):
+                    source[k, j, i] = self.data[k, j, i]
 
-    # addNoise to the shapes in the domain
-    def addNoise(self, noiseLevel):
-        for k in range(len(self.shapes)):
-            self.shapes[0].addNoise(noiseLevel)
+        for k in xrange(self.sizeZ):
+            for j in xrange(self.sizeY):
+                for i in xrange(self.sizeX):
+                    n = 0
+                    sum_ = 0
+                    for kk in range(max(0, k - 1), min(self.sizeZ, k + 2)):
+                        for jj in range(max(0, j - 1), min(self.sizeY, j + 2)):
+                            for ii in range(max(0, i - 1), min(self.sizeX, i + 2)):
+                                n += 1;
+                                sum_ += source[kk, jj, ii]
+                    self.data[k, j, i] = max(0, min(255, round(sum_ / n)))
+        del source
 
     # calculate the porosity of designed geometry
     def calcPhi(self, threshold_color):
@@ -266,8 +250,7 @@ class Domain:
                             sum_white += 1
                         else:
                             sum_black += 1
-                print sum_black
-                #  return float(sum_black) / float(sum_white + sum_black)
+        return float(sum_black) / float(sum_white + sum_black)
 
     # save images
 
