@@ -248,12 +248,10 @@ class Domain:
 
     # save images
 
-    def saveImages(self, path, name=''):
+    def saveImages(self, path, name='domain'):
         if not os.path.exists(path):
             os.makedirs(path)
         self.data = np.uint8(self.data)
-        if name == '':
-            name = 'shape'
         for index in range(len(self.data)):
             img = Image.fromarray(self.data[index])
             img.save(path + name + '_' + str(index).zfill(4) + '.bmp')
